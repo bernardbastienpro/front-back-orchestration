@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone') {
+            steps {
+                git branch: 'develop', url: 'https://github.com/bernardbastienpro/front-back-orchestration'
+            }
+        }
+        stage('Build docker and run'){
+            steps {
+                bat 'docker-compose up -d'
+            }
+        }
+         stage('Testing + upload release '){
+            steps {
+                dir("frontend") {
+                    bat "npx cypress run"
+                    bat 'git checkout develop '
+                    bat "git checkout -b release-${version}"
+                    bat "git push -u origin release-${version}"
+                }
+                    
+            }
+        }
+    }
+}
